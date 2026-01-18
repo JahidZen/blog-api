@@ -15,8 +15,8 @@ data class Post(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-    val title: String = "",
-    val content: String = "",
+    var title: String = "", // var because allowing to edit post
+    var content: String = "",
 
     // Many Posts belong to One User
     @ManyToOne(fetch = FetchType.LAZY) // Lazy means: Don't load the whole User unless I specifically ask for it

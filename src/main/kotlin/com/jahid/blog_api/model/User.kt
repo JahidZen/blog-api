@@ -19,7 +19,7 @@ data class User (
 
     @Column(unique = true) // it says that the data in the username column must be unique compared to other usernames
     var username: String = "",
-    val email: String = "",
+    var email: String = "",
 
     // One user has many posts
     // mappedBy tells Spring: "Go look at the 'author' field in Post to figure this out"
