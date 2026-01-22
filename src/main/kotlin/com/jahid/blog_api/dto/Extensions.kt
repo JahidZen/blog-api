@@ -8,6 +8,7 @@ fun User.toDto(): UserDTO {
         id = this.id,
         username = this.username,
         email = this.email,
+        password = this.password
     )
 }
 

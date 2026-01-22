@@ -7,17 +7,22 @@ import com.jahid.blog_api.model.Post
 import com.jahid.blog_api.model.User
 import com.jahid.blog_api.repository.PostRepository
 import com.jahid.blog_api.repository.UserRepository
+import jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
 class BlogService (
     private val userRepository: UserRepository,
     private val postRepository: PostRepository,
+    private val passwordEncoder: PasswordEncoder
 ) {
     fun createUser(userDto: UserDTO): UserDTO {
         val userEntity = User(
             username = userDto.username,
-            email = userDto.email
+            email = userDto.email,
+            password = passwordEncoder.encode(userDto.password)
         )
 
         val savedUser = userRepository.save(userEntity)
@@ -43,25 +48,47 @@ class BlogService (
 
     // delete user id
     fun deleteId(id: Long) {
-        userRepository.deleteById(id)
+        val findUserId = userRepository.findById(id).orElseThrow() { RuntimeException("User not found with id: $id") }
+        val currentIdName = getCurrentUsername()
+
+        if (findUserId.username != currentIdName) {
+            throw RuntimeException("You're not the owner, so you're not allowed to delete this user.")
+        }
+
+        else {
+            userRepository.deleteById(id)
+        }
     }
 
 
     // delete post
     fun deletePost(postId: Long) {
-        postRepository.deleteById(postId)
+        val findPost = postRepository.findById(postId).orElseThrow() { RuntimeException("Post not found with id: $postId")}
+        val currentUserName = getCurrentUsername()
+
+        if (findPost.author.username != currentUserName) {
+            throw RuntimeException("You're not allowed to delete this post")
+        }
+
+        else {
+            postRepository.deleteById(postId)
+        }
     }
 
 
     // editing a post
     fun updatePost(id: Long, newTitle: String?, newContent: String?): PostDTO {
         val findPost = postRepository.findById(id).orElseThrow() { RuntimeException("Post not found with id: $id") }
-
-        if (newTitle != null) {
-            findPost.title = newTitle
-        }
-        if (newContent != null) {
-            findPost.content = newContent
+        val currentUserName = getCurrentUsername()
+        when {
+            findPost.author.username != currentUserName ->
+                {throw RuntimeException("You're not the owner, so you're not allowed to update")}
+            newTitle != null -> {
+                findPost.title = newTitle
+            }
+            newContent != null -> {
+                findPost.content = newContent
+            }
         }
 
         val savedUpdate = postRepository.save(findPost)
@@ -71,15 +98,25 @@ class BlogService (
 
 
     // updating an user data
-    fun updateUser(id: Long, newName: String?, newEmail: String?): UserDTO {
+    fun updateUser(id: Long, newName: String?, newEmail: String?, newPassword: String?): UserDTO {
         val findUser = userRepository.findById(id).orElseThrow() { RuntimeException("User not found with id: $id") }
+        val currentUserName = getCurrentUsername()
 
-        if (newName != null) {
-            findUser.username = newName
-        }
+        when {
+            findUser.username != currentUserName ->
+                throw RuntimeException("You're not the owner, so you're not allowed to update")
 
-        if (newEmail != null) {
-            findUser.email = newEmail
+            newName != null -> {
+                findUser.username = newName
+            }
+
+            newEmail != null -> {
+                findUser.email = newEmail
+            }
+
+            newPassword != null -> {
+                findUser.password = newPassword
+            }
         }
 
         val updateUser = userRepository.save(findUser)
@@ -105,4 +142,13 @@ class BlogService (
     fun getAllPosts(): List<PostDTO> {
         return postRepository.findAll().map { it.toDto() }
     }
+
+
+
+
+
+    // Spring checks who's currently logged in
+    private fun getCurrentUsername(): String =
+        SecurityContextHolder.getContext().authentication?.name ?: throw RuntimeException("User not found")
+
 }

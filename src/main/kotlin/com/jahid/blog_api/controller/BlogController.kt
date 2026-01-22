@@ -28,7 +28,8 @@ class BlogController(private val blogService: BlogService) {
         val updatedUser = blogService.updateUser(
             id = id,
             newName = user.username,
-            newEmail = user.email
+            newEmail = user.email,
+            newPassword = user.password,
         )
         return ResponseEntity.ok(updatedUser)
     }
