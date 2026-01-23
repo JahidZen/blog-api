@@ -3,10 +3,12 @@ package com.jahid.blog_api.config
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
+import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.config.Customizer
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 
@@ -22,6 +24,7 @@ class SecurityConfig {
                 auth.requestMatchers(HttpMethod.POST, "/api/users/**").permitAll() // permits everyone to create account
                 auth.requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll() // permits everyone to read posts
                 auth.requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
+                auth.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 auth.anyRequest().authenticated() // except the above the permits, everything else requires login
             }.httpBasic(Customizer.withDefaults()) // httpBasic tells Spring to verify users in basic way with name and password.
 
@@ -32,5 +35,10 @@ class SecurityConfig {
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder() // It encodes/hashes password. The industry standard hashing algorithm
+    }
+
+
+    fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager {
+        return config.authenticationManager
     }
 }
