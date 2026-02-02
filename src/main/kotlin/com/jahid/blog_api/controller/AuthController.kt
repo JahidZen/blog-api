@@ -1,6 +1,7 @@
 package com.jahid.blog_api.controller
 
 import com.jahid.blog_api.service.JwtService
+import com.jahid.blog_api.dto.LoginRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
@@ -15,10 +16,11 @@ import javax.naming.AuthenticationException
 @RestController
 @RequestMapping("/api/auth")
 class AuthController(
-    private val authenticationManager: AuthenticationManager, // Spring's login manager
+    private val authenticationManager: AuthenticationManager, // Spring's own function; When user sends username and pass, it just validates if these are correct. Spring's login manager.
     private val jwtService: JwtService
 ) {
     @PostMapping("/login")
+    // LoginRequest is data class from dto
     fun login(@RequestBody request: LoginRequest): ResponseEntity<Map<String, String>> {
         try {
 
@@ -32,6 +34,4 @@ class AuthController(
         val token = jwtService.generateToken(request.username)
         return ResponseEntity.ok(mapOf("token" to token))
     }
-
-    data class LoginRequest(val username: String, val password: String)
 }

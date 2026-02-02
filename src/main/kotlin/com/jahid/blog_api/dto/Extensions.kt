@@ -3,12 +3,11 @@ package com.jahid.blog_api.dto
 import com.jahid.blog_api.model.Post
 import com.jahid.blog_api.model.User
 
-fun User.toDto(): UserDTO {
-    return UserDTO(
+fun User.toResponse(): UserResponseDTO {
+    return UserResponseDTO(
         id = this.id,
         username = this.username,
-        email = this.email,
-        password = this.password
+        email = this.email
     )
 }
 

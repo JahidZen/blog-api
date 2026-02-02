@@ -9,7 +9,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 
-@Entity // This class talks to the database
+@Entity
 @Table(name = "posts") // names the table in the database
 data class Post(
     @Id

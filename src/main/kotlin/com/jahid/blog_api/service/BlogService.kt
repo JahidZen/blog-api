@@ -1,13 +1,14 @@
 package com.jahid.blog_api.service
 
 import com.jahid.blog_api.dto.PostDTO
-import com.jahid.blog_api.dto.UserDTO
+import com.jahid.blog_api.dto.UserRegisterDTO
+import com.jahid.blog_api.dto.UserResponseDTO
 import com.jahid.blog_api.dto.toDto
+import com.jahid.blog_api.dto.toResponse
 import com.jahid.blog_api.model.Post
 import com.jahid.blog_api.model.User
 import com.jahid.blog_api.repository.PostRepository
 import com.jahid.blog_api.repository.UserRepository
-import jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -18,7 +19,7 @@ class BlogService (
     private val postRepository: PostRepository,
     private val passwordEncoder: PasswordEncoder
 ) {
-    fun createUser(userDto: UserDTO): UserDTO {
+    fun createUser(userDto: UserRegisterDTO): UserResponseDTO {
         val userEntity = User(
             username = userDto.username,
             email = userDto.email,
@@ -26,7 +27,7 @@ class BlogService (
         )
 
         val savedUser = userRepository.save(userEntity)
-        return savedUser.toDto()
+        return savedUser.toResponse()
     }
 
 
@@ -98,7 +99,7 @@ class BlogService (
 
 
     // updating an user data
-    fun updateUser(id: Long, newName: String?, newEmail: String?, newPassword: String?): UserDTO {
+    fun updateUser(id: Long, newName: String?, newEmail: String?, newPassword: String?): UserResponseDTO {
         val findUser = userRepository.findById(id).orElseThrow() { RuntimeException("User not found with id: $id") }
         val currentUserName = getCurrentUsername()
 
@@ -120,18 +121,18 @@ class BlogService (
         }
 
         val updateUser = userRepository.save(findUser)
-        return updateUser.toDto()
+        return updateUser.toResponse()
     }
 
 
     // Implementing R of CRUD
-    fun getUser(id: Long): UserDTO {
+    fun getUser(id: Long): UserResponseDTO {
         val findUser = userRepository.findById(id).orElseThrow() {RuntimeException("User not found with id: $id") }
-        return findUser.toDto()
+        return findUser.toResponse()
     }
 
-    fun getAllUsers(): List<UserDTO> {
-        return userRepository.findAll().map { it.toDto() }
+    fun getAllUsers(): List<UserResponseDTO> {
+        return userRepository.findAll().map { it.toResponse() }
     }
 
     fun getPost(id: Long): PostDTO {

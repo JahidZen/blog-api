@@ -4,40 +4,57 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
+import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig {
+class SecurityConfig(
+    private val jwtAuthFilter: JwtAuthenticationFilter,
+    private val userDetailsService: UserDetailsService
+) {
+
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http.csrf { it.disable() }
-            .authorizeHttpRequests { //// Disabling CSRF cause we don't need work with cookies in REST api. Cookies are in web browsers, in that case it should be enabled.
-                    auth ->
-                auth.requestMatchers(HttpMethod.POST, "/api/users/**").permitAll() // permits everyone to create account
-                auth.requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll() // permits everyone to read posts
+            .authorizeHttpRequests { auth ->
+                auth.requestMatchers(HttpMethod.POST, "/api/users/**").permitAll()
+                auth.requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 auth.requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
                 auth.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                auth.anyRequest().authenticated() // except the above the permits, everything else requires login
-            }.httpBasic(Customizer.withDefaults()) // httpBasic tells Spring to verify users in basic way with name and password.
+                auth.anyRequest().authenticated()
+            }
+            .sessionManagement {
+                it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            }
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
 
         return http.build()
     }
 
+    @Bean
+    fun authenticationProvider(passwordEncoder: PasswordEncoder): AuthenticationProvider {
+        val provider = DaoAuthenticationProvider(userDetailsService)
+        provider.setPasswordEncoder(passwordEncoder)
+        return provider
+    }
 
     @Bean
     fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder() // It encodes/hashes password. The industry standard hashing algorithm
+        return BCryptPasswordEncoder()
     }
 
-
+    @Bean
     fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager {
         return config.authenticationManager
     }

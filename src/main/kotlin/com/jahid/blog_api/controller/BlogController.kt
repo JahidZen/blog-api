@@ -1,7 +1,8 @@
 package com.jahid.blog_api.controller
 
 import com.jahid.blog_api.dto.PostDTO
-import com.jahid.blog_api.dto.UserDTO
+import com.jahid.blog_api.dto.UserRegisterDTO
+import com.jahid.blog_api.dto.UserResponseDTO
 import com.jahid.blog_api.service.BlogService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -18,13 +19,13 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/api")
 class BlogController(private val blogService: BlogService) {
     @PostMapping("/users")
-    fun createUser(@RequestBody user: UserDTO): ResponseEntity<UserDTO> {
+    fun createUser(@RequestBody user: UserRegisterDTO): ResponseEntity<UserResponseDTO> {
         val createdUser = blogService.createUser(user) // this createUser is called from BlogService
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser)
     }
 
     @PutMapping("/users/{id}")
-    fun updateUser(@PathVariable id: Long, @RequestBody user: UserDTO): ResponseEntity<UserDTO> {
+    fun updateUser(@PathVariable id: Long, @RequestBody user: UserRegisterDTO): ResponseEntity<UserResponseDTO> {
         val updatedUser = blogService.updateUser(
             id = id,
             newName = user.username,
@@ -54,7 +55,7 @@ class BlogController(private val blogService: BlogService) {
 
 
     @DeleteMapping("users/{id}")
-    fun deleteUser(@PathVariable id: Long): ResponseEntity<UserDTO> {
+    fun deleteUser(@PathVariable id: Long): ResponseEntity<UserResponseDTO> {
         val deletedUser = blogService.deleteId(
             id = id
         )
@@ -72,12 +73,12 @@ class BlogController(private val blogService: BlogService) {
 
 
     @GetMapping("/users")
-    fun getAllUsers(): ResponseEntity<List<UserDTO>> {
+    fun getAllUsers(): ResponseEntity<List<UserResponseDTO>> {
         return ResponseEntity.ok(blogService.getAllUsers())
     }
 
     @GetMapping("/users/{id}")
-    fun getUser(@PathVariable id: Long): ResponseEntity<UserDTO> {
+    fun getUser(@PathVariable id: Long): ResponseEntity<UserResponseDTO> {
         return ResponseEntity.ok(blogService.getUser(id))
     }
 
