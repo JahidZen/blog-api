@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
-class BlogService (
+class BlogService(
     private val userRepository: UserRepository,
     private val postRepository: PostRepository,
     private val passwordEncoder: PasswordEncoder
@@ -31,10 +31,9 @@ class BlogService (
     }
 
 
-
-
     fun createPost(postDto: PostDTO): PostDTO {
-        val author = userRepository.findById(postDto.authorId).orElseThrow() { RuntimeException("User not found with id: ${postDto.authorId}") }
+        val author = userRepository.findById(postDto.authorId)
+            .orElseThrow() { RuntimeException("User not found with id: ${postDto.authorId}") }
         val postEntity = Post(
             title = postDto.title,
             content = postDto.content,
@@ -46,7 +45,6 @@ class BlogService (
     }
 
 
-
     // delete user id
     fun deleteId(id: Long) {
         val findUserId = userRepository.findById(id).orElseThrow() { RuntimeException("User not found with id: $id") }
@@ -54,9 +52,7 @@ class BlogService (
 
         if (findUserId.username != currentIdName) {
             throw RuntimeException("You're not the owner, so you're not allowed to delete this user.")
-        }
-
-        else {
+        } else {
             userRepository.deleteById(id)
         }
     }
@@ -64,14 +60,13 @@ class BlogService (
 
     // delete post
     fun deletePost(postId: Long) {
-        val findPost = postRepository.findById(postId).orElseThrow() { RuntimeException("Post not found with id: $postId")}
+        val findPost =
+            postRepository.findById(postId).orElseThrow() { RuntimeException("Post not found with id: $postId") }
         val currentUserName = getCurrentUsername()
 
         if (findPost.author.username != currentUserName) {
             throw RuntimeException("You're not allowed to delete this post")
-        }
-
-        else {
+        } else {
             postRepository.deleteById(postId)
         }
     }
@@ -82,11 +77,14 @@ class BlogService (
         val findPost = postRepository.findById(id).orElseThrow() { RuntimeException("Post not found with id: $id") }
         val currentUserName = getCurrentUsername()
         when {
-            findPost.author.username != currentUserName ->
-                {throw RuntimeException("You're not the owner, so you're not allowed to update")}
+            findPost.author.username != currentUserName -> {
+                throw RuntimeException("You're not the owner, so you're not allowed to update")
+            }
+
             newTitle != null -> {
                 findPost.title = newTitle
             }
+
             newContent != null -> {
                 findPost.content = newContent
             }
@@ -95,7 +93,6 @@ class BlogService (
         val savedUpdate = postRepository.save(findPost)
         return savedUpdate.toDto()
     }
-
 
 
     // updating an user data
@@ -127,7 +124,7 @@ class BlogService (
 
     // Implementing R of CRUD
     fun getUser(id: Long): UserResponseDTO {
-        val findUser = userRepository.findById(id).orElseThrow() {RuntimeException("User not found with id: $id") }
+        val findUser = userRepository.findById(id).orElseThrow() { RuntimeException("User not found with id: $id") }
         return findUser.toResponse()
     }
 
@@ -136,16 +133,13 @@ class BlogService (
     }
 
     fun getPost(id: Long): PostDTO {
-        val findPost = postRepository.findById(id).orElseThrow() {RuntimeException("Post not found with id: $id") }
+        val findPost = postRepository.findById(id).orElseThrow() { RuntimeException("Post not found with id: $id") }
         return findPost.toDto()
     }
 
     fun getAllPosts(): List<PostDTO> {
         return postRepository.findAll().map { it.toDto() }
     }
-
-
-
 
 
     // Spring checks who's currently logged in

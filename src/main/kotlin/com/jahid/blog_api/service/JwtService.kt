@@ -22,8 +22,6 @@ class JwtService {
     }
 
 
-
-
     // Extract the Username
     fun extractUsername(token: String): String {
         return extractClaim(token, Claims::getSubject)

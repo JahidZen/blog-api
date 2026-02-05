@@ -1,6 +1,6 @@
 package com.jahid.blog_api.dto
 
-data class UserRegisterDTO (
+data class UserRegisterDTO(
     val id: Long = 0,
     val username: String,
     val password: String?,
@@ -8,13 +8,13 @@ data class UserRegisterDTO (
 )
 
 
-data class UserResponseDTO (
+data class UserResponseDTO(
     val id: Long = 0,
     val username: String,
     val email: String
 )
 
-data class PostDTO (
+data class PostDTO(
     val id: Long = 0,
     val title: String,
     val content: String,

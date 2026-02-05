@@ -53,7 +53,6 @@ class BlogController(private val blogService: BlogService) {
     }
 
 
-
     @DeleteMapping("users/{id}")
     fun deleteUser(@PathVariable id: Long): ResponseEntity<UserResponseDTO> {
         val deletedUser = blogService.deleteId(

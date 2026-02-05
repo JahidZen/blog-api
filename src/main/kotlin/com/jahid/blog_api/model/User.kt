@@ -12,7 +12,7 @@ import jakarta.persistence.CascadeType
 
 @Entity
 @Table(name = "users")
-data class User (
+data class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // Automatically and incrementally generating id numbers
     var id: Long = 0,
